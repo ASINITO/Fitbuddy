@@ -1,3 +1,4 @@
+Demo link:https://drive.google.com/file/d/1vq7UrI-miquyCXfF3kawrBBXzjeVlUdu/view?usp=sharing
 # FitBuddy – AI-Powered Personalized Fitness, Nutrition & Wellness Platform
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
