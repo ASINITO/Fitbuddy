@@ -1,0 +1,6 @@
+{
+  "name": "FitBuddy - AI Fitness & Wellness Platform",
+  "description": "AI-Powered Personalized Fitness, Nutrition & Wellness Platform with workout plan generation, nutrition guidance, progress tracking, and multilingual AI fitness coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

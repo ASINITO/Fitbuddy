@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FitBuddy - AI Fitness & Wellness Platform{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857'
+                        },
+                        cyan: {
+                            500: '#06b6d4',
+                            600: '#0891b2'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-2">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20">
+                        FB
+                    </div>
+                    <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">FitBuddy</span>
+                </a>
+                <span class="hidden md:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    AI Wellness
+                </span>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                {% if user %}
+                    <a href="/dashboard" class="text-slate-300 hover:text-emerald-400 transition-colors">Dashboard</a>
+                    <a href="/workout" class="text-slate-300 hover:text-emerald-400 transition-colors">Workout</a>
+                    <a href="/nutrition" class="text-slate-300 hover:text-emerald-400 transition-colors">Nutrition</a>
+                    <a href="/progress" class="text-slate-300 hover:text-emerald-400 transition-colors">Progress</a>
+                    <a href="/chatbot" class="text-slate-300 hover:text-emerald-400 transition-colors">AI Coach</a>
+                    <a href="/achievements" class="text-slate-300 hover:text-emerald-400 transition-colors">Badges</a>
+                    {% if user.is_admin %}
+                        <a href="/admin" class="text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
+                            <i data-lucide="shield" class="w-4 h-4"></i> Admin
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="/#features" class="text-slate-300 hover:text-emerald-400 transition-colors">Features</a>
+                    <a href="/docs" target="_blank" class="text-slate-300 hover:text-emerald-400 transition-colors">API Docs</a>
+                {% endif %}
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                {% if user %}
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="font-medium text-slate-300">{{ user.full_name }}</span>
+                    </div>
+                    <a href="/profile" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </a>
+                    <button onclick="handleLogout()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        Logout
+                    </button>
+                {% else %}
+                    <a href="/login" class="text-sm font-medium text-slate-300 hover:text-white px-3 py-1.5">Sign In</a>
+                    <a href="/register" class="text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-4 py-2 rounded-lg shadow-md shadow-emerald-500/20 transition">
+                        Get Started
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Medical & Health Disclaimer Banner -->
+    <aside class="bg-amber-950/40 border-b border-amber-900/50 px-4 py-1.5 text-center text-xs text-amber-300/90 flex items-center justify-center gap-2">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0 text-amber-400"></i>
+        <span>
+            <strong>General Wellness Notice:</strong> FitBuddy AI provides automated general fitness suggestions and does not substitute professional medical diagnosis or personalized physical therapy. Consult a physician before starting any rigorous workout.
+        </span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8 mt-12 text-sm text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-300">FitBuddy Platform</span>
+                <span>• Built for College AI/ML Project & Research Demonstration</span>
+            </div>
+            <div class="flex items-center space-x-6 text-xs">
+                <span>FastAPI + SQLite</span>
+                <span>Google Gemini AI</span>
+                <span>Multilingual Support (English / தமிழ்)</span>
+                <a href="/docs" class="text-emerald-400 hover:underline">Swagger Docs</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        lucide.createIcons();
+        async function handleLogout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (e) {
+                window.location.href = '/login';
+            }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Workout History & Adaptations - FitBuddy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white">Workout Plan History</h1>
+            <p class="text-xs text-slate-400 mt-1">Audit trail of all generated routines, modifications, and user feedback</p>
+        </div>
+        <a href="/workout" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition">
+            Back to Active Plan
+        </a>
+    </div>
+
+    <div id="historyList" class="space-y-4">
+        <div class="p-8 text-center text-slate-400 text-sm">Loading workout history...</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const res = await fetch('/api/workout/history');
+        if (res.ok) {
+            const list = await res.json();
+            const container = document.getElementById('historyList');
+            if (list.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No workout history logged yet.</div>`;
+                return;
+            }
+            container.innerHTML = list.map(item => `
+                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white">${item.focus}</span>
+                            ${item.completed ? '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>' : ''}
+                        </div>
+                        ${item.feedback ? `<p class="text-xs text-amber-400/90 mt-1"><strong>Feedback applied:</strong> "${item.feedback}"</p>` : ''}
+                        <div class="text-[11px] text-slate-500 mt-1">Date: ${new Date(item.created_at).toLocaleString()}</div>
+                    </div>
+                    <div class="text-right text-xs text-slate-400">
+                        ${item.completed_at ? `Completed at: ${new Date(item.completed_at).toLocaleTimeString()}` : 'Scheduled'}
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+});
+</script>
+{% endblock %}

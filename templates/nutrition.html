@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}AI Nutrition Guide - FitBuddy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white">AI Nutrition & Meal Structure</h1>
+            <p class="text-xs text-slate-400 mt-1">Science-backed dietary recommendations supporting your training and recovery</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="requestNewMealPlan()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition">
+                Regenerate AI Meals
+            </button>
+        </div>
+    </div>
+
+    <!-- Macro Breakdown Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase">Estimated Calories</span>
+            <div id="nutCalories" class="text-2xl font-black text-white mt-1">-- kcal</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[11px] font-semibold text-emerald-400 uppercase">Protein Target</span>
+            <div id="nutProtein" class="text-2xl font-black text-emerald-400 mt-1">-- g</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[11px] font-semibold text-cyan-400 uppercase">Carbohydrates</span>
+            <div id="nutCarbs" class="text-2xl font-black text-cyan-400 mt-1">-- g</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[11px] font-semibold text-amber-400 uppercase">Fats</span>
+            <div id="nutFats" class="text-2xl font-black text-amber-400 mt-1">-- g</div>
+        </div>
+    </div>
+
+    <!-- Daily Meals -->
+    <div class="space-y-4">
+        <h2 class="text-lg font-bold text-white">Daily Meal Schedule</h2>
+        <div id="mealScheduleList" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="p-6 text-center text-slate-500 text-xs col-span-5">Loading your nutrition guide...</div>
+        </div>
+    </div>
+
+    <!-- Pre/Post Workout & Hydration -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-800">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+            <h3 class="text-sm font-bold text-cyan-400 mb-2 flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-4 h-4"></i> Pre-Workout Fuel
+            </h3>
+            <p id="preWorkoutText" class="text-xs text-slate-300 leading-relaxed">
+                Loading pre-workout recommendations...
+            </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+            <h3 class="text-sm font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i> Post-Workout Recovery
+            </h3>
+            <p id="postWorkoutText" class="text-xs text-slate-300 leading-relaxed">
+                Loading post-workout recovery options...
+            </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+            <h3 class="text-sm font-bold text-blue-400 mb-2 flex items-center gap-1.5">
+                <i data-lucide="droplet" class="w-4 h-4"></i> Hydration Protocol
+            </h3>
+            <p id="hydrationTipText" class="text-xs text-slate-300 leading-relaxed">
+                Loading hydration tips...
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    loadNutritionPlan();
+});
+
+async function loadNutritionPlan() {
+    try {
+        const res = await fetch('/api/nutrition/plan');
+        if (res.ok) {
+            const data = await res.json();
+            const plan = data.plan;
+
+            document.getElementById('nutCalories').innerText = `${plan.estimated_calories} kcal`;
+            document.getElementById('nutProtein').innerText = `${plan.protein_g} g`;
+            document.getElementById('nutCarbs').innerText = `${plan.carbs_g} g`;
+            document.getElementById('nutFats').innerText = `${plan.fats_g} g`;
+
+            document.getElementById('preWorkoutText').innerText = plan.pre_workout;
+            document.getElementById('postWorkoutText').innerText = plan.post_workout;
+            document.getElementById('hydrationTipText').innerText = plan.hydration_tip;
+
+            const mealNames = [
+                { key: 'breakfast', label: 'Breakfast' },
+                { key: 'mid_morning', label: 'Mid-Morning' },
+                { key: 'lunch', label: 'Lunch' },
+                { key: 'evening_snack', label: 'Evening Snack' },
+                { key: 'dinner', label: 'Dinner' }
+            ];
+
+            const list = document.getElementById('mealScheduleList');
+            list.innerHTML = mealNames.map(m => {
+                const item = plan.meals[m.key] || { name: 'Balanced Option', description: '', calories: 0, protein: '' };
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">${m.label}</span>
+                            <h4 class="text-xs font-bold text-white mt-1">${item.name}</h4>
+                            <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">${item.description}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-400 flex justify-between font-mono">
+                            <span>${item.calories} kcal</span>
+                            <span class="text-emerald-400 font-bold">${item.protein}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function requestNewMealPlan() {
+    try {
+        await fetch('/api/nutrition/plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target_calories: 2200, dietary_preference: "Vegetarian" })
+        });
+        loadNutritionPlan();
+    } catch (e) { console.error(e); }
+}
+</script>
+{% endblock %}

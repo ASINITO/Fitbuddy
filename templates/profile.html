@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile & Settings - FitBuddy{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <div class="pb-6 border-b border-slate-800">
+            <h1 class="text-2xl font-bold text-white">Profile & Preferences</h1>
+            <p class="text-xs text-slate-400 mt-1">Updating your profile recalibrates the AI workout and nutrition recommendation engines</p>
+        </div>
+
+        <form id="profileForm" onsubmit="submitProfileUpdate(event)" class="mt-6 space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+                    <input type="text" id="p_name" value="{{ user.full_name }}" required
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Age</label>
+                    <input type="number" id="p_age" value="{{ user.age or 25 }}"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Height (cm)</label>
+                    <input type="number" id="p_height" value="{{ user.height or 175 }}"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Weight (kg)</label>
+                    <input type="number" id="p_weight" step="0.5" value="{{ user.weight or 70 }}"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Fitness Goal</label>
+                    <select id="p_goal" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                        <option value="Weight management" {% if user.fitness_goal == "Weight management" %}selected{% endif %}>Weight management</option>
+                        <option value="Muscle building" {% if user.fitness_goal == "Muscle building" %}selected{% endif %}>Muscle building</option>
+                        <option value="Strength" {% if user.fitness_goal == "Strength" %}selected{% endif %}>Strength</option>
+                        <option value="Endurance" {% if user.fitness_goal == "Endurance" %}selected{% endif %}>Endurance</option>
+                        <option value="General wellness" {% if user.fitness_goal == "General wellness" %}selected{% endif %}>General wellness</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Fitness Level</label>
+                    <select id="p_level" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                        <option value="Beginner" {% if user.fitness_level == "Beginner" %}selected{% endif %}>Beginner</option>
+                        <option value="Intermediate" {% if user.fitness_level == "Intermediate" %}selected{% endif %}>Intermediate</option>
+                        <option value="Advanced" {% if user.fitness_level == "Advanced" %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Dietary Preference</label>
+                    <select id="p_diet" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                        <option value="Vegetarian" {% if user.dietary_preference == "Vegetarian" %}selected{% endif %}>Vegetarian</option>
+                        <option value="Non-vegetarian" {% if user.dietary_preference == "Non-vegetarian" %}selected{% endif %}>Non-vegetarian</option>
+                        <option value="Vegan" {% if user.dietary_preference == "Vegan" %}selected{% endif %}>Vegan</option>
+                        <option value="Eggetarian" {% if user.dietary_preference == "Eggetarian" %}selected{% endif %}>Eggetarian</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Preferred Language</label>
+                    <select id="p_lang" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white">
+                        <option value="English" {% if user.preferred_language == "English" %}selected{% endif %}>English</option>
+                        <option value="Tamil" {% if user.preferred_language == "Tamil" %}selected{% endif %}>Tamil (தமிழ்)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs shadow-md transition">
+                Save & Recalibrate AI Recommendations
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+async function submitProfileUpdate(e) {
+    e.preventDefault();
+    const payload = {
+        full_name: document.getElementById('p_name').value,
+        age: parseInt(document.getElementById('p_age').value),
+        height: parseFloat(document.getElementById('p_height').value),
+        weight: parseFloat(document.getElementById('p_weight').value),
+        fitness_goal: document.getElementById('p_goal').value,
+        fitness_level: document.getElementById('p_level').value,
+        dietary_preference: document.getElementById('p_diet').value,
+        preferred_language: document.getElementById('p_lang').value
+    };
+
+    try {
+        const res = await fetch('/api/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            alert('Profile updated successfully! New AI recommendations will use your latest data.');
+            window.location.reload();
+        }
+    } catch (err) { console.error(err); }
+}
+</script>
+{% endblock %}

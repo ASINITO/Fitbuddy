@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - FitBuddy{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-12">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Join FitBuddy</h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">Provide your metrics so Gemini AI can engineer your customized plan</p>
+        </div>
+
+        <div id="errorAlert" class="hidden mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs"></div>
+
+        <form id="regForm" onsubmit="submitRegister(event)" class="space-y-6">
+            <!-- Account Info -->
+            <div>
+                <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-3">1. Account Credentials</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+                        <input type="text" id="full_name" required placeholder="e.g. Maya Lin"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
+                        <input type="text" id="username" required placeholder="e.g. mayalin"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Email</label>
+                        <input type="email" id="email" required placeholder="maya@example.com"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                        <input type="password" id="password" required minlength="6" placeholder="••••••••"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Metrics -->
+            <div class="pt-4 border-t border-slate-800">
+                <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-3">2. Body Composition</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Age</label>
+                        <input type="number" id="age" value="26" min="12" max="100"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Gender</label>
+                        <select id="gender" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Height (cm)</label>
+                        <input type="number" id="height" value="168" min="80" max="250"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Weight (kg)</label>
+                        <input type="number" id="weight" value="62" step="0.5" min="25" max="300"
+                               class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fitness Profile -->
+            <div class="pt-4 border-t border-slate-800">
+                <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-3">3. Fitness Goal & Preferences</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Fitness Goal</label>
+                        <select id="fitness_goal" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Weight management">Weight management</option>
+                            <option value="Muscle building">Muscle building</option>
+                            <option value="Strength">Strength</option>
+                            <option value="Endurance">Endurance</option>
+                            <option value="Flexibility">Flexibility</option>
+                            <option value="General wellness" selected>General wellness</option>
+                            <option value="Sports fitness">Sports fitness</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Current Fitness Level</label>
+                        <select id="fitness_level" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Beginner" selected>Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Intensity</label>
+                        <select id="preferred_intensity" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Low">Low (Gentle pace)</option>
+                            <option value="Moderate" selected>Moderate (Balanced)</option>
+                            <option value="High">High (Challenging)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Session Duration</label>
+                        <select id="preferred_duration" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="30">30 minutes</option>
+                            <option value="45" selected>45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Dietary Preference</label>
+                        <select id="dietary_preference" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Vegetarian" selected>Vegetarian</option>
+                            <option value="Non-vegetarian">Non-vegetarian</option>
+                            <option value="Vegan">Vegan</option>
+                            <option value="Eggetarian">Eggetarian</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">AI Coach Language</label>
+                        <select id="preferred_language" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="English" selected>English</option>
+                            <option value="Tamil">Tamil (தமிழ்)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                    class="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-95 text-slate-950 font-bold rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
+                Create Account & Generate First AI Plan
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-xs text-slate-400">
+            Already registered? <a href="/login" class="text-emerald-400 hover:underline font-semibold">Sign in here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+async function submitRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const alertBox = document.getElementById('errorAlert');
+    btn.disabled = true;
+    btn.innerText = "Setting up your AI profile...";
+    alertBox.classList.add('hidden');
+
+    const payload = {
+        full_name: document.getElementById('full_name').value,
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        age: parseInt(document.getElementById('age').value),
+        gender: document.getElementById('gender').value,
+        height: parseFloat(document.getElementById('height').value),
+        weight: parseFloat(document.getElementById('weight').value),
+        fitness_goal: document.getElementById('fitness_goal').value,
+        fitness_level: document.getElementById('fitness_level').value,
+        preferred_intensity: document.getElementById('preferred_intensity').value,
+        preferred_duration: parseInt(document.getElementById('preferred_duration').value),
+        available_days: 4,
+        equipment: "Bodyweight, Dumbbells",
+        dietary_preference: document.getElementById('dietary_preference').value,
+        preferred_language: document.getElementById('preferred_language').value
+    };
+
+    try {
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alertBox.innerText = data.detail || "Registration error occurred.";
+            alertBox.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerText = "Create Account & Generate First AI Plan";
+        } else {
+            // Auto login after registration
+            await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username_or_email: payload.username, password: payload.password })
+            });
+            window.location.href = '/dashboard';
+        }
+    } catch (err) {
+        alertBox.innerText = "Network error. Please try again.";
+        alertBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = "Create Account & Generate First AI Plan";
+    }
+}
+</script>
+{% endblock %}

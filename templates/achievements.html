@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Achievements & Badges - FitBuddy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="pb-4 border-b border-slate-800">
+        <h1 class="text-2xl sm:text-3xl font-black text-white">Milestones & Achievements</h1>
+        <p class="text-xs text-slate-400 mt-1">Unlock badges by logging training sessions, maintaining streaks, and hitting hydration goals</p>
+    </div>
+
+    <div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="p-8 text-center text-slate-500 text-xs col-span-3">Loading achievements...</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const res = await fetch('/api/achievements');
+        if (res.ok) {
+            const badges = await res.json();
+            const grid = document.getElementById('badgesGrid');
+            grid.innerHTML = badges.map(b => `
+                <div class="p-6 rounded-2xl border transition ${b.unlocked ? 'bg-slate-900 border-emerald-500/40 shadow-lg shadow-emerald-500/5' : 'bg-slate-900/50 border-slate-800/80 opacity-60'}">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg ${b.unlocked ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-500'}">
+                            <i data-lucide="${b.icon || 'award'}" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${b.unlocked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}">
+                            ${b.unlocked ? `Unlocked ${b.unlocked_at || ''}` : 'Locked'}
+                        </span>
+                    </div>
+
+                    <h3 class="text-sm font-bold text-white mt-4">${b.title}</h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">${b.description}</p>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                        <span>Category: ${b.category}</span>
+                        <span class="text-emerald-400 font-bold">+${b.points} pts</span>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+});
+</script>
+{% endblock %}

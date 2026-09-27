@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}FitBuddy AI Coach - Chatbot{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-10rem)] flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white flex items-center gap-2">
+                    FitBuddy AI Coach
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </h1>
+                <p class="text-xs text-slate-400">Context-aware fitness & nutrition assistant</p>
+            </div>
+        </div>
+
+        <!-- Language Selector -->
+        <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-400">Language:</span>
+            <select id="chatLang" class="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-emerald-500">
+                <option value="English" selected>English</option>
+                <option value="Tamil">தமிழ் (Tamil)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Suggested Prompt Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto py-3 flex-shrink-0 no-scrollbar text-xs">
+        <button onclick="sendQuickPrompt('What workout should I do today?')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">
+            What workout should I do today?
+        </button>
+        <button onclick="sendQuickPrompt('How can I improve my recovery after leg day?')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">
+            Improve recovery
+        </button>
+        <button onclick="sendQuickPrompt('Explain proper squat form and safety cues')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">
+            Explain squats
+        </button>
+        <button onclick="sendQuickPrompt('Give me a 5-minute dynamic warm-up')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">
+            5-min warm-up
+        </button>
+        <button onclick="sendQuickPrompt('Suggest a high-protein post-workout snack')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">
+            Post-workout meal
+        </button>
+    </div>
+
+    <!-- Chat Message Feed -->
+    <div id="chatFeed" class="flex-1 overflow-y-auto space-y-4 py-4 pr-2">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                FB
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200 leading-relaxed max-w-xl">
+                Hello {{ user.full_name }}! I am your FitBuddy AI coach. I have loaded your current goal (<strong class="text-emerald-400">{{ user.fitness_goal }}</strong>) and fitness level (<strong class="text-cyan-400">{{ user.fitness_level }}</strong>). How can I assist your training or nutrition right now?
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Box -->
+    <div class="pt-3 border-t border-slate-800 flex-shrink-0">
+        <form onsubmit="handleSendChat(event)" class="flex items-center gap-2">
+            <input type="text" id="chatInput" placeholder="Ask about workouts, form, nutrition, or recovery..." required
+                   class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500 transition">
+            <button type="submit" id="sendBtn" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs transition shadow-md shadow-emerald-500/20">
+                Send
+            </button>
+        </form>
+        <div class="text-[10px] text-slate-500 text-center mt-2">
+            FitBuddy AI offers general wellness guidance. Always consult a physician for acute injuries or medical symptoms.
+        </div>
+    </div>
+</div>
+
+<script>
+async function handleSendChat(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = "";
+    appendUserMessage(msg);
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+
+    try {
+        const lang = document.getElementById('chatLang').value;
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg, language: lang })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            appendAiMessage(data.reply);
+        } else {
+            appendAiMessage("Sorry, I could not process your query right now. Please check your connection.");
+        }
+    } catch (err) {
+        appendAiMessage("Network connection interrupted.");
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function sendQuickPrompt(txt) {
+    document.getElementById('chatInput').value = txt;
+    handleSendChat(new Event('submit'));
+}
+
+function appendUserMessage(text) {
+    const feed = document.getElementById('chatFeed');
+    const div = document.createElement('div');
+    div.className = "flex items-start justify-end gap-3";
+    div.innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-emerald-500 text-slate-950 font-medium text-xs leading-relaxed max-w-xl">
+            ${escapeHtml(text)}
+        </div>
+    `;
+    feed.appendChild(div);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+function appendAiMessage(text) {
+    const feed = document.getElementById('chatFeed');
+    const div = document.createElement('div');
+    div.className = "flex items-start gap-3";
+    div.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+            FB
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200 leading-relaxed max-w-xl whitespace-pre-wrap">
+            ${escapeHtml(text)}
+        </div>
+    `;
+    feed.appendChild(div);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+function escapeHtml(string) {
+    return String(string).replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[s]));
+}
+</script>
+{% endblock %}
